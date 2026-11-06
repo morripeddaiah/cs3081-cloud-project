@@ -56,3 +56,4 @@ print(f"Summary: {passed} passed, {failed} failed.")
 if failed > 0:
     sys.exit(1)
 sys.exit(0)
+

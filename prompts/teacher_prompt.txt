@@ -30,3 +30,4 @@ Output: {"intent": "weather_query", "date": null, "time": null, "place": "london
 
 Command: {command}
 Output:
+

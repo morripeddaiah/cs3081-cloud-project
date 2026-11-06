@@ -49,3 +49,4 @@ HEALTHCHECK --interval=15s --timeout=3s --start-period=30s --retries=3 \
   CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')" || exit 1
 
 ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+

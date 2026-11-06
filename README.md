@@ -150,3 +150,4 @@ project/
 - [x] All 7 tasks implemented and documented in `report/report.md`
 - [x] AI usage documented in `AI_USE.md`
 - [x] Final commit tagged as `final`
+

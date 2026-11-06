@@ -67,3 +67,4 @@ Because Network Access Control Lists (NACLs) are **stateless**:
 1. Allow traffic to App subnet `10.20.0.0/22` on application port 8000 (Rule 100).
 2. Allow response traffic to external clients on ephemeral return ports (1024-65535) (Rule 110).
 3. Deny all other outbound traffic via default rule.
+

@@ -104,3 +104,4 @@ jobs:
             echo "Evaluating baseline results..."
             python tools/score.py results/teacher_validation.json data/validation.jsonl --out results/ci_report.json --min-validity 95 || true
           fi
+

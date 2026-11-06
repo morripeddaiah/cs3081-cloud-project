@@ -19,3 +19,4 @@ Furthermore, implementing stateless NACL rules underscored the fundamental diffe
 Deploying microservices without resource requests and limits in Kubernetes is dangerous. Configuring `500m/512Mi` requests and `1000m/1Gi` limits ensured predictability and enabled HPA to scale accurately at 70% CPU threshold. Calculating cloud costs using the rate card showed that our 2-replica deployment cost merely INR 0.0615 per 1,000 requests. This concrete economic calculation revealed how cloud infrastructure choices directly govern financial feasibility.
 
 *Note: For the physical submission, please attach the scanned handwritten copy of these reflection notes alongside this transcript.*
+

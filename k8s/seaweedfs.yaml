@@ -61,3 +61,4 @@ spec:
       name: master
   selector:
     app: seaweedfs
+

@@ -83,6 +83,8 @@ def main():
     parser = argparse.ArgumentParser(description="Train Pythia-70M student model.")
     parser.add_argument("--config", default="training/config.yaml", help="Path to config.yaml")
     parser.add_argument("--subset", type=int, default=None, help="Subset size for testing (e.g. 50)")
+    parser.add_argument("--batch-size", type=int, default=None, help="Batch size override")
+    parser.add_argument("--epochs", type=int, default=None, help="Epochs override")
     parser.add_argument("--out-dir", default="models/v1", help="Output directory for model weights")
     parser.add_argument("--s3-sync", action="store_true", help="Upload artifacts to S3")
     args = parser.parse_args()
@@ -100,8 +102,8 @@ def main():
     base_model_name = cfg.get("model", {}).get("base_model", "EleutherAI/pythia-70m")
     max_seq_len = cfg.get("model", {}).get("max_seq_len", 128)
     lr = float(cfg.get("training", {}).get("learning_rate", 5e-4))
-    epochs = int(cfg.get("training", {}).get("epochs", 3))
-    batch_size = int(cfg.get("training", {}).get("batch_size", 16))
+    epochs = args.epochs if args.epochs is not None else int(cfg.get("training", {}).get("epochs", 3))
+    batch_size = args.batch_size if args.batch_size is not None else int(cfg.get("training", {}).get("batch_size", 16))
     max_train_samples = cfg.get("data", {}).get("max_train_samples", 1500)
     train_file = cfg.get("data", {}).get("train_file", "datasets/v1/train.jsonl")
 
@@ -134,11 +136,12 @@ def main():
             }
         ] * (max_train_samples or 10)
 
-    print(f"Loaded {len(records)} training samples.")
+    print(f"Loaded {len(records)} training samples.", flush=True)
     dataset = CommandDataset(records, tokenizer, max_length=max_seq_len)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     device = torch.device("cpu")
+    
     model = AutoModelForCausalLM.from_pretrained(base_model_name)
     model.to(device)
     model.train()
@@ -149,7 +152,7 @@ def main():
         optimizer, num_warmup_steps=int(total_steps * 0.05), num_training_steps=total_steps
     )
 
-    print(f"Starting training on {device} for {epochs} epochs ({total_steps} steps)...")
+    print(f"Starting training on {device} for {epochs} epochs ({total_steps} steps)...", flush=True)
     for epoch in range(epochs):
         epoch_loss = 0.0
         for step, batch in enumerate(dataloader):
@@ -170,21 +173,20 @@ def main():
             scheduler.step()
             epoch_loss += loss.item()
 
-            if (step + 1) % 10 == 0 or (step + 1) == len(dataloader):
-                print(f"Epoch {epoch+1}/{epochs} | Step {step+1}/{len(dataloader)} | Loss: {loss.item():.4f}")
+            print(f"Epoch {epoch+1}/{epochs} | Step {step+1}/{len(dataloader)} | Loss: {loss.item():.4f}", flush=True)
 
         avg_loss = epoch_loss / len(dataloader)
-        print(f"--> Epoch {epoch+1} Complete. Average Loss: {avg_loss:.4f}")
+        print(f"--> Epoch {epoch+1} Complete. Average Loss: {avg_loss:.4f}", flush=True)
 
     # Save model artifacts
     os.makedirs(args.out_dir, exist_ok=True)
-    print(f"Saving model and tokenizer to {args.out_dir}...")
+    print(f"Saving model and tokenizer to {args.out_dir}...", flush=True)
     model.save_pretrained(args.out_dir)
     tokenizer.save_pretrained(args.out_dir)
 
     checksum_file = os.path.join(args.out_dir, "model.sha256")
     compute_dir_sha256(args.out_dir, checksum_file)
-    print(f"Training completed successfully. Artifacts ready in {args.out_dir}")
+    print(f"Training completed successfully. Artifacts ready in {args.out_dir}", flush=True)
 
 
 if __name__ == "__main__":

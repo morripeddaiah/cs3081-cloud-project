@@ -1,0 +1,31 @@
+# Model checkpoints and weights (Must NOT be committed to Git)
+models/
+*.bin
+*.pt
+*.safetensors
+*.h5
+*.onnx
+
+# Cache and python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Shards and datasets generated during training
+shards/
+datasets/v1/*.jsonl
+datasets/v1/*.sha256
+/tmp/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# OS specific files
+.DS_Store
+Thumbs.db

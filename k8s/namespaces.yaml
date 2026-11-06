@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app
+  labels:
+    name: app
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: data
+  labels:
+    name: data
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pipeline
+  labels:
+    name: pipeline

@@ -10,3 +10,4 @@ Results:
 - Average CPU Utilization: 44.8%
 - Peak CPU Utilization: 82.1% (triggering HPA threshold briefly)
 - Average Latency per Request: 76.4 ms
+

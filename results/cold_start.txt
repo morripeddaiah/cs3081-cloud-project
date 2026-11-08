@@ -24,3 +24,4 @@ Run 3:
 - Total Cold Start: 7.02s
 
 Median Cold Start Latency: 7.02s
+

@@ -15,10 +15,8 @@ __pycache__/
 htmlcov/
 *.log
 
-# Shards and datasets generated during training
+# Shards and cache generated during training
 shards/
-datasets/v1/*.jsonl
-datasets/v1/*.sha256
 /tmp/
 
 # Virtual environments

@@ -13,3 +13,4 @@ Test 2: Pod Failure & Self-Healing Recovery under load
 - Successful requests: 308 (99.35% success, 0.65% failure <= 2.0% requirement)
 - Time to spawn replacement replica and achieve Ready state: 7.15s
 - Replica count restored to 2/2.
+

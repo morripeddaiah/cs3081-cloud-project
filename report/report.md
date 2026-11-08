@@ -5,6 +5,8 @@
 **Roll Number:** 230101051  
 **Course:** Cloud Computing (CS3081)  
 **Academic Year:** 2026-2027  
+**GitHub Repository:** https://github.com/morripeddaiah/cs3081-cloud-project  
+**GitHub Release Assets:** https://github.com/morripeddaiah/cs3081-cloud-project/releases/tag/v1.0.0  
 
 ---
 

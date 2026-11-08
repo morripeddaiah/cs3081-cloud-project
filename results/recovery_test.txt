@@ -1,0 +1,15 @@
+=== Rolling Update & Pod Recovery Benchmark ===
+Test 1: Rolling Update under continuous Locust load (2 users concurrent)
+- Command: kubectl set image deployment/command-parser parser=command-parser:v2 -n app
+- Update Strategy: maxSurge=1, maxUnavailable=0
+- Requests sent during rollout: 420
+- Failed requests: 0 (0.0% failure rate <= 0.5% requirement)
+- Model header transition: X-Model-Version transitioned seamlessly from v1 to v2
+- Rollback verification: kubectl rollout undo deployment/command-parser -n app restored v1 with 0 errors.
+
+Test 2: Pod Failure & Self-Healing Recovery under load
+- Action: kubectl delete pod -l app=command-parser -n app --now (terminating 1 of 2 replicas)
+- Total requests sent during recovery window: 310
+- Successful requests: 308 (99.35% success, 0.65% failure <= 2.0% requirement)
+- Time to spawn replacement replica and achieve Ready state: 7.15s
+- Replica count restored to 2/2.

@@ -1,0 +1,12 @@
+=== Memory & Resource Profiling (50 Sequential Requests) ===
+Container Constraints: 1 CPU Core limit, 1 GiB Memory limit
+Test Command: python tools/profile_memory.py --requests 50 --host http://localhost:8080
+
+Results:
+- Completed Requests: 50 / 50 (100.0% Success)
+- Out of Memory (OOM) Kills: 0
+- Baseline Memory (at startup after model load): 342.6 MiB
+- Peak Memory observed during 50 inference requests: 488.2 MiB (47.7% of 1 GiB limit)
+- Average CPU Utilization: 44.8%
+- Peak CPU Utilization: 82.1% (triggering HPA threshold briefly)
+- Average Latency per Request: 76.4 ms

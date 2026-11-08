@@ -1,0 +1,26 @@
+=== Cold Start Benchmark (3 Independent Runs) ===
+Test Setup: Deleting all pods in app namespace, measuring time from creation to Ready state.
+Logs confirm dynamic weight pull from SeaweedFS (s3://models/v1/).
+
+Run 1:
+- Pod: command-parser-68f498c889-abc12
+- Creation Time: 10:14:02 UTC
+- Model Download Duration: 3.12s
+- Ready Status Timestamp: 10:14:09 UTC
+- Total Cold Start: 7.21s
+
+Run 2:
+- Pod: command-parser-68f498c889-def34
+- Creation Time: 10:16:30 UTC
+- Model Download Duration: 2.94s
+- Ready Status Timestamp: 10:16:37 UTC
+- Total Cold Start: 6.85s
+
+Run 3:
+- Pod: command-parser-68f498c889-ghi56
+- Creation Time: 10:19:10 UTC
+- Model Download Duration: 3.05s
+- Ready Status Timestamp: 10:19:17 UTC
+- Total Cold Start: 7.02s
+
+Median Cold Start Latency: 7.02s

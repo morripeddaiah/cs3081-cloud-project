@@ -125,7 +125,7 @@ def main():
             record = {
                 "id": cmd_id,
                 "text": text,
-                "teacher_output": raw_reply,
+                "teacher_raw": raw_reply,
             }
             out_f.write(json.dumps(record) + "\n")
             out_f.flush()

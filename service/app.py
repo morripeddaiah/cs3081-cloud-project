@@ -180,12 +180,15 @@ def parse_command(req: ParseRequest, response: Response):
 
     # Fault injection mode for testing error handling
     if os.environ.get("FAULT_INJECT", "0") == "1" or FAULT_INJECT == "1":
-        # Simulate broken output
-        raw_output = "not json"
-        print(f"[FAULT_INJECT] Forcing invalid output: {raw_output}")
-        raise HTTPException(
+        print("[FAULT_INJECT] Forcing invalid output: not json")
+        return Response(
+            content=json.dumps({"error": "invalid_model_output"}),
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Fault injection triggered: model generated invalid output '{raw_output}'",
+            media_type="application/json",
+            headers={
+                "X-Model-Version": MODEL_VERSION,
+                "X-Served-By": SERVED_BY,
+            },
         )
 
     if not state["is_ready"]:
@@ -219,11 +222,16 @@ def parse_command(req: ParseRequest, response: Response):
         parsed = json.loads(first_line)
         validate_schema(parsed)
     except Exception as err:
-        # Schema failure must return HTTP 500
+        # Schema failure must return HTTP 500 with exact error body
         print(f"[ERROR] Schema validation error on '{first_line}': {err}")
-        raise HTTPException(
+        return Response(
+            content=json.dumps({"error": "invalid_model_output"}),
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Inference output failed schema validation: {err}",
+            media_type="application/json",
+            headers={
+                "X-Model-Version": MODEL_VERSION,
+                "X-Served-By": SERVED_BY,
+            },
         )
 
     return parsed

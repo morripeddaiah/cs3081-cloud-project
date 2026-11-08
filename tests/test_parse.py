@@ -50,11 +50,11 @@ class TestInferenceService(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
 
     def test_fault_injection(self):
-        """Test that FAULT_INJECT=1 causes endpoint to return HTTP 500."""
+        """Test that FAULT_INJECT=1 causes endpoint to return HTTP 500 with exact error body."""
         os.environ["FAULT_INJECT"] = "1"
         response = self.client.post("/parse", json={"text": "what time is it"})
         self.assertEqual(response.status_code, 500)
-        self.assertIn("Fault injection triggered", response.json()["detail"])
+        self.assertEqual(response.json(), {"error": "invalid_model_output"})
 
 
 if __name__ == "__main__":

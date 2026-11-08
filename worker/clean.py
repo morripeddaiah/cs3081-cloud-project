@@ -128,7 +128,7 @@ def main():
     out_file = os.path.join(args.out_dir, "train.jsonl")
     checksum_file = os.path.join(args.out_dir, "train.sha256")
 
-    shard_files = sorted(glob.glob(os.path.join(args.shards-dir if hasattr(args, "shards-dir") else args.shards_dir, "*.jsonl")))
+    shard_files = sorted(glob.glob(os.path.join(args.shards_dir, "*.jsonl")))
     
     # If no shard files found in specified dir, check root shards/
     if not shard_files:
@@ -147,7 +147,7 @@ def main():
         "valid_kept": 0,
     }
 
-    seen_texts = set()
+    seen_texts = {}  # normalized text -> record with smallest id
     cleaned_records = []
 
     for s_path in shard_files:
@@ -165,7 +165,7 @@ def main():
                     continue
 
                 cmd_text = record.get("text", "")
-                raw_teacher = record.get("teacher_output", "")
+                raw_teacher = record.get("teacher_raw", "")
                 parsed = parse_teacher_reply(raw_teacher)
 
                 is_valid, reason = validate_record(cmd_text, parsed)
@@ -180,22 +180,25 @@ def main():
                         stats["invalid_json"] += 1
                     continue
 
-                # Deduplication check
+                # Deduplication check (keep the record with the smallest id)
                 norm_text = " ".join(cmd_text.strip().lower().split())
-                if norm_text in seen_texts:
-                    stats["duplicates"] += 1
-                    continue
-
-                seen_texts.add(norm_text)
-                
-                # Standard clean format for student training
                 clean_entry = {
                     "id": record.get("id"),
                     "text": cmd_text,
                     "target": parsed,
                 }
-                cleaned_records.append(clean_entry)
+                if norm_text in seen_texts:
+                    existing = seen_texts[norm_text]
+                    if record.get("id", "") < existing["id"]:
+                        seen_texts[norm_text] = clean_entry
+                    stats["duplicates"] += 1
+                    continue
+
+                seen_texts[norm_text] = clean_entry
                 stats["valid_kept"] += 1
+
+    # Collect records sorted by id
+    cleaned_records = sorted(seen_texts.values(), key=lambda r: r["id"])
 
     # Write output file
     with open(out_file, "w", encoding="utf-8") as f_out:

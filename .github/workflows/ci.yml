@@ -94,14 +94,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Run Quality Gate Scoring
+      - name: Generate Predictions from Release Model
         run: |
-          # Verify predictions against validation.jsonl with strict 95% json_validity threshold
-          # If results/student_v1_preds.jsonl exists, score it; otherwise evaluate on validation set
-          if [ -f results/student_v1_preds.jsonl ]; then
-            python tools/score.py results/student_v1_preds.jsonl data/validation.jsonl --out results/ci_report.json --min-validity 95
-          else
-            echo "Evaluating baseline results..."
-            python tools/score.py results/teacher_validation.json data/validation.jsonl --out results/ci_report.json --min-validity 95 || true
-          fi
+          python training/evaluate.py --mode student --model-path models/v1 \
+            --gold data/validation.jsonl \
+            --out-preds results/ci_preds.jsonl \
+            --out-report results/ci_report.json
+
+      - name: Quality Gate (min-validity 95%)
+        run: |
+          python tools/score.py results/ci_preds.jsonl data/validation.jsonl \
+            --out results/ci_gate_report.json --min-validity 95
 

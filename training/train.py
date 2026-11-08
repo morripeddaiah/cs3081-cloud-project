@@ -152,11 +152,15 @@ def main():
         optimizer, num_warmup_steps=int(total_steps * 0.05), num_training_steps=total_steps
     )
 
+    grad_accum_steps = int(cfg.get("training", {}).get("gradient_accumulation_steps", 1))
+    loss_csv_path = os.path.join(os.path.dirname(args.config) if args.config else "training", "loss.csv")
+    epoch_losses = []
+
     print(f"Starting training on {device} for {epochs} epochs ({total_steps} steps)...", flush=True)
     for epoch in range(epochs):
         epoch_loss = 0.0
+        optimizer.zero_grad()
         for step, batch in enumerate(dataloader):
-            optimizer.zero_grad()
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
@@ -166,17 +170,28 @@ def main():
                 attention_mask=attention_mask,
                 labels=labels,
             )
-            loss = outputs.loss
+            loss = outputs.loss / grad_accum_steps
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
-            scheduler.step()
-            epoch_loss += loss.item()
+            epoch_loss += outputs.loss.item()
 
-            print(f"Epoch {epoch+1}/{epochs} | Step {step+1}/{len(dataloader)} | Loss: {loss.item():.4f}", flush=True)
+            if (step + 1) % grad_accum_steps == 0 or (step + 1) == len(dataloader):
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
+
+            print(f"Epoch {epoch+1}/{epochs} | Step {step+1}/{len(dataloader)} | Loss: {outputs.loss.item():.4f}", flush=True)
 
         avg_loss = epoch_loss / len(dataloader)
+        epoch_losses.append(avg_loss)
         print(f"--> Epoch {epoch+1} Complete. Average Loss: {avg_loss:.4f}", flush=True)
+
+    # Save loss.csv
+    with open(loss_csv_path, "w", encoding="utf-8") as lf:
+        lf.write("epoch,loss\n")
+        for i, l in enumerate(epoch_losses, 1):
+            lf.write(f"{i},{l:.6f}\n")
+    print(f"Loss history saved to {loss_csv_path}")
 
     # Save model artifacts
     os.makedirs(args.out_dir, exist_ok=True)

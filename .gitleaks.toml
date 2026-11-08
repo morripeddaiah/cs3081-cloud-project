@@ -1,0 +1,11 @@
+[allowlist]
+description = "Allowlist for SeaweedFS default cluster secrets and test configs"
+paths = [
+  '''k8s/s3-secret.yaml''',
+  '''service/app.py''',
+  '''worker/worker.py''',
+  '''worker/clean.py'''
+]
+regexes = [
+  '''seaweedfsadmin'''
+]
